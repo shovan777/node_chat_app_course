@@ -29,14 +29,20 @@ io.on('connection', (socket) => {
   //   console.log('createEmail', newEmail);
   // });
 
-  socket.emit('newMessage', {
-    from: 'papa',
-    text: 'hello beta. how do you do?',
-    createdAt: 123
-  });
+  // socket.emit('newMessage', {
+  //   // socket.emit only emits to single connection
+  //   from: 'papa',
+  //   text: 'hello beta. how do you do?',
+  //   createdAt: 123
+  // });
 
   socket.on('createMessage', (newMsg) => {
     console.log('createMessage', newMsg);
+    io.emit('newMessage', {
+      from: newMsg.from,
+      text:  newMsg.txt,
+      createdAt: new Date().getTime()
+    });
   });
   socket.on('disconnect', () => {
     console.log('disconnected from the server');
