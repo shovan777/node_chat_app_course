@@ -18,7 +18,16 @@ app.use(express.static(publicPath));
 // io.on lets you register an event listener
 io.on('connection', (socket) => {
   console.log(`new user connected at socket`);
-
+  socket.emit('newMessage', {
+    from: 'Admin',
+    text: 'Welcome to the chat room',
+    createdAt: new Date().getTime()
+  });
+  socket.broadcast.emit('newMessage', {
+    from: 'Admin',
+    text: 'New user has joined the room',
+    createdAt: new Date().getTime()
+  }); 
   // socket.emit('newEmail', {
   //   from: 'swainshrestha@outlook.com',
   //   text: 'how are you?',
@@ -43,6 +52,11 @@ io.on('connection', (socket) => {
       text:  newMsg.txt,
       createdAt: new Date().getTime()
     });
+    // socket.broadcast.emit('newMessage', {
+    //   from: newMsg.from,
+    //   text: newMsg.text,
+    //   createdAt: new Date().getTime()
+    // });
   });
   socket.on('disconnect', () => {
     console.log('disconnected from the server');
