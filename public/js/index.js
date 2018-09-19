@@ -45,3 +45,33 @@ jQuery('#message-form').on('submit', function (e) {
     console.log('got it', ackMsg);
   });
 });
+
+
+var locationButton = jQuery('#sendLocation');
+locationButton.on('click', function () {
+  if(!navigator.geolocation) {
+    return alert('geolocation not supported by browser');
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    function (position) {
+      console.log(position);
+      socket.emit('createLocationMessage', {
+        latitude: position.coords.latitude,
+        longitude: position.coords.longitude
+      });
+    }, function () {
+      alert('Unable to fetch user location');
+    });
+});
+
+socket.on('newLocationMessage', function (message) {
+  var li = jQuery('<li></li>');
+  // _blank tells to open the link in new tab
+  var a = jQuery('<a target="_blank">My current location</a>');
+
+  li.text(`${message.from}: `);
+  a.attr('href', message.url);
+  li.append(a);
+  jQuery('#messages').append(li);
+});
