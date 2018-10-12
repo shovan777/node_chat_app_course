@@ -4,6 +4,7 @@ const express = require('express');
 const socketIO = require('socket.io');
 
 const {generateMessage, generateLocationMessage} = require('./utils/message');
+const {isRealString} = require('./utils/validation');
 
 const port = process.env.PORT || 3000;
 
@@ -20,12 +21,25 @@ app.use(express.static(publicPath));
 // io.on lets you register an event listener
 io.on('connection', (socket) => {
   console.log(`new user connected at socket`);
-  socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat room'));
 
-  socket.broadcast.emit('newMessage', {
-    from: 'Admin',
-    text: 'New user has joined the room',
-    createdAt: new Date().getTime()
+  socket.on('join', (params, callback) => {
+    if (!isRealString(params.name) || !isRealString(params.room)) {
+      callback('Valid name and room are required');
+
+    }
+    socket.join(params.room);
+    // socket.leave('The office fans');
+    // io.emit --> emit to all User
+    // socket.broadcast.emit --> emit to all except the current user
+    // socket.emit --> emit to current user
+    // emitting to Room
+    // io.to('room name').emit
+    // socket.broadcast.to(.....).emit
+    // socket.emit0
+    socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat room'));
+
+    socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', `${params.name} has joined.`));
+    callback();
   });
   // socket.emit('newEmail', {
   //   from: 'swainshrestha@outlook.com',
